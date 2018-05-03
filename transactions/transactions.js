@@ -38,15 +38,37 @@ addPoem()
 .then(checkPoem)
 .catch(console.log);
 
+function createTransactionHash(){
+	return SHA256(`${transaction.data};${transaction.timestamp}`).toString();
+}
+
+createTransaction(data){
+	var transaction = {
+			data,
+			timestamp: Date.now(),
+		};
+	transaction.hash = createTransactionHash(transaction);
+	return transaction;
+}
+
+authorizeTransaction(transaction){
+	var checkHash = createTransactionHash(transaction);
+	if (transaction.hash !== checkHash) return false;
+	if (typeof transaction.data !== "string") return false;
+	if (transaction.data.length === 0) return false;
+}
 
 // **********************************
 
 async function addPoem() {
 	var transactions = [];
 
-	// TODO: add poem lines as authorized transactions
-	// for (let line of poem) {
-	// }
+	for (let line of poem) {
+		let transaction = createTransaction(line)
+		if authorizeTransaction(transaction){
+			transactions.push(transaction)
+		}
+	}
 
 	var bl = createBlock(transactions);
 
@@ -127,8 +149,6 @@ async function verifyBlock(bl) {
 		}
 		if (bl.hash !== blockHash(bl)) return false;
 		if (!Array.isArray(bl.data)) return false;
-
-		// TODO: verify transactions in block
 	}
 
 	return true;
