@@ -15,7 +15,7 @@ var poem = [
 	"especially yours can heal a frozen heart",
 ];
 
-var difficulty = 10;
+var difficulty = 4;
 
 var Blockchain = {
 	blocks: [],
@@ -46,15 +46,26 @@ function createBlock(data) {
 		prevHash: Blockchain.blocks[Blockchain.blocks.length-1].hash,
 		data,
 		timestamp: Date.now(),
+		nonce: Math.floor(Math.random() * 10000)
 	};
 
 	bl.hash = blockHash(bl);
+	let binary = blockHash(bl);
+	console.log(text2Binary(binary))
 
 	return bl;
 }
 
+function text2Binary(string) {
+	return string.split('').map(function (char) {
+	    return char.charCodeAt(0).toString(2);
+	}).join(' ');
+}
+
 function blockHash(bl) {
-	// TODO
+	return crypto.createHash("sha256").update(
+		`${bl.prevHash};${bl.index};${JSON.stringify(bl.data)};${bl.timestamp};${bl.nonce};`
+	).digest("hex");
 }
 
 function hashIsLowEnough(hash) {
